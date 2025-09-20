@@ -5,7 +5,8 @@
   "main": "server/server.js",
   "type": "module",
   "scripts": {
-    "start": "node server/server.js",
+    "start": "node test-server.js",
+    "start-full": "node server/server.js",
     "railway": "node railway-start.js",
     "dev": "nodemon server/server.js",
     "build": "echo 'No build step required for static frontend'",
