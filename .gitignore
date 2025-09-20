@@ -11,11 +11,16 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
-# Database
+# Database files (but not server database code)
 *.db
 *.sqlite
 *.sqlite3
-database/
+database/*.db
+database/*.sqlite
+database/*.sqlite3
+
+# Allow server database code
+!server/database/
 
 # Logs
 logs/
