@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node server/server.js",
+    "railway": "node railway-start.js",
     "dev": "nodemon server/server.js",
     "build": "echo 'No build step required for static frontend'",
     "deploy": "npm run build && npm start"

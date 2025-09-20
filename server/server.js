@@ -117,18 +117,44 @@ app.use((err, req, res, next) => {
 
 // Initialize database and start server
 async function startServer() {
+    console.log('🚀 Starting BirdDash server...');
+    console.log('🌍 Environment:', process.env.NODE_ENV || 'development');
+    console.log('📡 Port:', PORT);
+    console.log('📁 Working directory:', process.cwd());
+    
     try {
+        console.log('🗄️ Initializing database...');
         await initializeDatabase();
         console.log('✅ Database initialized successfully');
         
-        app.listen(PORT, () => {
+        const server = app.listen(PORT, '0.0.0.0', () => {
             console.log(`🚀 BirdDash server running on port ${PORT}`);
             console.log(`🎮 Game available at: http://localhost:${PORT}`);
             console.log(`📊 API available at: http://localhost:${PORT}/api`);
             console.log(`🏥 Health check: http://localhost:${PORT}/api/health`);
+            console.log('✅ Server startup completed successfully');
         });
+
+        server.on('error', (error) => {
+            console.error('❌ Server error:', error);
+            if (error.code === 'EADDRINUSE') {
+                console.error(`❌ Port ${PORT} is already in use`);
+                process.exit(1);
+            }
+        });
+
+        // Handle graceful shutdown
+        process.on('SIGTERM', () => {
+            console.log('🛑 Received SIGTERM, shutting down gracefully...');
+            server.close(() => {
+                console.log('✅ Server closed');
+                process.exit(0);
+            });
+        });
+
     } catch (error) {
         console.error('❌ Failed to start server:', error);
+        console.error('Stack trace:', error.stack);
         process.exit(1);
     }
 }
