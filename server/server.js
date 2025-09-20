@@ -110,6 +110,20 @@ app.get('/ping', (req, res) => {
     res.send('pong');
 });
 
+// This will be defined later with server state check
+
+// Alternative health endpoints for Railway
+app.get('/healthz', (req, res) => {
+    console.log('🏥 Healthz check from:', req.ip);
+    res.status(200).json({ status: 'healthy' });
+});
+
+// Immediate health check (doesn't wait for database)
+app.get('/alive', (req, res) => {
+    console.log('💓 Alive check from:', req.ip);
+    res.status(200).send('alive');
+});
+
 // Serve the game on root path
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../index.html'));
@@ -143,12 +157,31 @@ app.use((err, req, res, next) => {
     });
 });
 
+// Global server ready state
+let isServerReady = false;
+
+// Update readiness endpoint to check actual server state
+app.get('/ready', (req, res) => {
+    console.log('✅ Readiness check from:', req.ip, '- Server ready:', isServerReady);
+    if (isServerReady) {
+        res.status(200).send('ready');
+    } else {
+        res.status(503).send('not ready');
+    }
+});
+
 // Initialize database and start server
 async function startServer() {
     console.log('🚀 Starting BirdDash server...');
     console.log('🌍 Environment:', process.env.NODE_ENV || 'development');
     console.log('📡 Port:', PORT);
     console.log('📁 Working directory:', process.cwd());
+    console.log('🔍 All environment variables:');
+    Object.keys(process.env).sort().forEach(key => {
+        if (key.includes('RAILWAY') || key.includes('PORT') || key.includes('NODE') || key.includes('DATABASE')) {
+            console.log(`  ${key}=${process.env[key]}`);
+        }
+    });
     
     try {
         console.log('🗄️ Initializing database...');
@@ -157,10 +190,17 @@ async function startServer() {
         
         const server = app.listen(PORT, '0.0.0.0', () => {
             console.log(`🚀 BirdDash server running on port ${PORT}`);
-            console.log(`🎮 Game available at: http://localhost:${PORT}`);
-            console.log(`📊 API available at: http://localhost:${PORT}/api`);
-            console.log(`🏥 Health check: http://localhost:${PORT}/api/health`);
+            console.log(`🎮 Game available at: http://0.0.0.0:${PORT}`);
+            console.log(`📊 API available at: http://0.0.0.0:${PORT}/api`);
+            console.log(`🏥 Health check: http://0.0.0.0:${PORT}/ready`);
             console.log('✅ Server startup completed successfully');
+            
+            // Mark server as ready after a brief delay
+            setTimeout(() => {
+                isServerReady = true;
+                console.log('🔍 Server is now ready for health checks');
+                console.log('🔍 Server listening on:', server.address());
+            }, 2000);
         });
 
         server.on('error', (error) => {
@@ -187,4 +227,26 @@ async function startServer() {
     }
 }
 
-startServer();
+// Global error handlers
+process.on('uncaughtException', (error) => {
+    console.error('❌ Uncaught Exception:', error);
+    console.error('Stack:', error.stack);
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+    console.error('Stack:', reason?.stack);
+    process.exit(1);
+});
+
+console.log('🎯 Starting BirdDash application...');
+console.log('🎯 Node.js version:', process.version);
+console.log('🎯 Platform:', process.platform);
+console.log('🎯 Architecture:', process.arch);
+
+startServer().catch(error => {
+    console.error('❌ Failed to start server:', error);
+    console.error('❌ Error stack:', error.stack);
+    process.exit(1);
+});
