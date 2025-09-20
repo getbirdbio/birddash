@@ -22,6 +22,12 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+console.log('🔍 Railway Debug Info:');
+console.log('  - NODE_ENV:', process.env.NODE_ENV);
+console.log('  - PORT (from env):', process.env.PORT);
+console.log('  - PORT (final):', PORT);
+console.log('  - RAILWAY_ENVIRONMENT:', process.env.RAILWAY_ENVIRONMENT);
+console.log('  - All env vars:', Object.keys(process.env).filter(k => k.includes('RAILWAY')));
 
 // Security middleware
 app.use(helmet({
@@ -73,13 +79,35 @@ app.use('/api/auth', authRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/users', userRoutes);
 
-// Health check endpoint
+// Health check endpoint with detailed info
 app.get('/api/health', (req, res) => {
-    res.json({ 
+    console.log('🏥 Health check requested from:', req.ip);
+    
+    const healthData = { 
         status: 'OK', 
         timestamp: new Date().toISOString(),
-        version: '1.0.0'
-    });
+        version: '1.0.0',
+        port: PORT,
+        environment: process.env.NODE_ENV || 'development',
+        uptime: process.uptime(),
+        memory: process.memoryUsage(),
+        railway: !!process.env.RAILWAY_ENVIRONMENT
+    };
+    
+    console.log('🏥 Health check response:', healthData);
+    res.json(healthData);
+});
+
+// Root health check (in case Railway checks this)
+app.get('/health', (req, res) => {
+    console.log('🏥 Root health check requested from:', req.ip);
+    res.json({ status: 'OK', message: 'BirdDash server is running' });
+});
+
+// Simple ping endpoint
+app.get('/ping', (req, res) => {
+    console.log('🏓 Ping requested from:', req.ip);
+    res.send('pong');
 });
 
 // Serve the game on root path
