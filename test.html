@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Phaser Test</title>
+</head>
+<body>
+    <h1>Phaser Loading Test</h1>
+    <div id="test-result">Loading...</div>
+    
+    <!-- Load Phaser from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+    
+    <script>
+        // Test if Phaser loaded
+        setTimeout(() => {
+            const result = document.getElementById('test-result');
+            if (typeof Phaser !== 'undefined') {
+                result.innerHTML = '✅ SUCCESS: Phaser loaded! Version: ' + Phaser.VERSION;
+                result.style.color = 'green';
+                console.log('✅ Phaser loaded successfully:', typeof Phaser);
+                console.log('Phaser version:', Phaser.VERSION);
+            } else {
+                result.innerHTML = '❌ FAILED: Phaser not loaded';
+                result.style.color = 'red';
+                console.log('❌ Phaser not loaded:', typeof Phaser);
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

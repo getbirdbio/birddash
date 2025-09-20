@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Bird Dash - Coffee Shop Runner</title>
+    <script type="importmap">
+    {
+        "imports": {
+            "phaser": "https://esm.sh/phaser@3.70.0"
+        }
+    }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh; /* Dynamic viewport height for mobile */
+            overflow: hidden;
+            background: linear-gradient(135deg, #8B4513, #D2691E);
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Safe area handling for notched devices */
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
+        
+        #phaser-game-container {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh; /* Dynamic viewport height */
+            max-width: 100vw;
+            max-height: 100vh;
+            max-height: 100dvh;
+        }
+        
+        canvas {
+            display: block;
+            max-width: 100vw;
+            max-height: 100vh;
+            max-height: 100dvh;
+            touch-action: none;
+            border-radius: 0;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        /* Prevent zoom on double tap */
+        html {
+            touch-action: manipulation;
+        }
+        
+        /* Mobile specific adjustments */
+        @media (max-width: 768px) {
+            body {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+            }
+            
+            /* Hide address bar on mobile */
+            #phaser-game-container {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+            }
+        }
+        
+        /* Fullscreen button - improved for mobile */
+        #fullscreen-btn {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 16px; /* Larger touch target */
+            font-size: 18px; /* Larger text */
+            cursor: pointer;
+            display: none;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        @media (max-width: 768px) {
+            #fullscreen-btn {
+                display: block;
+                width: 50px; /* Fixed width for better touch target */
+                height: 50px; /* Fixed height for better touch target */
+                border-radius: 25px; /* Make it round */
+                text-align: center;
+                line-height: 25px; /* Center the icon */
+                font-size: 24px; /* Even larger icon */
+            }
+        }
+    </style>
+    <script>
+        // Prevent iOS Safari pinch-zoom and double-tap zoom
+        document.addEventListener('gesturestart', function (e) { e.preventDefault(); }, { passive: false });
+        
+        // Mobile viewport height handling
+        function setViewportHeight() {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        
+        window.addEventListener('resize', setViewportHeight);
+        window.addEventListener('orientationchange', setViewportHeight);
+        setViewportHeight();
+        
+        // Fullscreen functionality - improved for iOS/Safari
+        function toggleFullscreen() {
+            // Try iOS-specific fullscreen first
+            if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen();
+            } 
+            // Then try standard fullscreen API
+            else if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Standard fullscreen not supported, trying alternatives');
+                    
+                    // Try different methods for iOS Safari
+                    if (document.webkitRequestFullscreen) {
+                        document.documentElement.webkitRequestFullscreen();
+                    } else if (document.webkitEnterFullscreen) {
+                        document.documentElement.webkitEnterFullscreen();
+                    } else if (document.querySelector('#phaser-game-container')) {
+                        // Try to make the game container fullscreen
+                        const gameContainer = document.querySelector('#phaser-game-container');
+                        if (gameContainer.webkitRequestFullscreen) {
+                            gameContainer.webkitRequestFullscreen();
+                        } else if (gameContainer.webkitEnterFullscreen) {
+                            gameContainer.webkitEnterFullscreen();
+                        }
+                    }
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <button id="fullscreen-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+    <div id="phaser-game-container"></div>
+    <!-- Load Phaser locally -->
+    <script src="phaser.min.js"></script>
+    <script type="module" src="main.js?v=2025092038"></script>
+</body>
+</html>
+

@@ -1,0 +1,33 @@
+{
+  "name": "birddash-game",
+  "version": "1.0.0",
+  "description": "BirdDash - A coffee-themed endless runner game with leaderboards",
+  "main": "server/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js",
+    "build": "echo 'No build step required for static frontend'",
+    "deploy": "npm run build && npm start"
+  },
+  "keywords": ["game", "phaser", "coffee", "leaderboard", "endless-runner"],
+  "author": "Dayne Levin-Rad",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "sqlite3": "^5.1.6",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "express-rate-limit": "^6.10.0",
+    "express-validator": "^7.0.1",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
