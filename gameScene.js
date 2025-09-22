@@ -488,61 +488,42 @@ export default class GameScene extends Phaser.Scene {
     }
 
     createUI() {
-        // Initialize comprehensive UI layout system
+        // Initialize ultra-minimal mobile UI system
         this.initializeUILayoutSystem();
         
-        // Create all UI elements in organized zones
+        // Create only essential UI elements for mobile gameplay
         this.createMainHUD();
-        this.createPowerUpStatusPanel();
-        this.createDebugPanel();
-        this.createFloatingElements();
         
-        console.log('🎨 Complete UI system initialized with structured layout');
+        // Debug panel only if debug mode is explicitly enabled
+        if (this.debugMode) {
+            this.createDebugPanel();
+        }
+        
+        console.log('🎨 Minimal mobile UI system initialized');
     }
     
     initializeUILayoutSystem() {
-        // Minimal, non-intrusive UI design following web game best practices
-        const margin = Math.max(10, 12 * this.minScale);
-        const hudHeight = Math.max(35, 40 * this.minScale); // Much smaller
+        // ULTRA-MINIMAL mobile-first UI design - only essential elements
+        const margin = Math.max(12, 15 * this.minScale); // Increased margin
+        const hudHeight = Math.max(45, 50 * this.minScale); // Increased for mobile
         
         this.uiZones = {
-            // Minimal top HUD bar - only essential info
+            // Simple top bar - score and health only
             topHUD: {
                 x: margin,
                 y: margin,
                 width: this.screenWidth - (margin * 2),
                 height: hudHeight
-            },
-            // Small corners for additional info when needed
-            topLeft: {
-                x: margin,
-                y: margin + hudHeight + 10,
-                width: 150,
-                height: 80
-            },
-            topRight: {
-                x: this.screenWidth - 150 - margin,
-                y: margin + hudHeight + 10,
-                width: 150,
-                height: 80
-            },
-            // Maximum game area - the focus should be on gameplay
-            gameArea: {
-                x: margin,
-                y: margin + hudHeight + 10,
-                width: this.screenWidth - (margin * 2),
-                height: this.screenHeight - hudHeight - (margin * 3) - 10
             }
         };
         
-        // Create main UI container with lower depth to be less intrusive
-        this.uiContainer = this.add.container(0, 0).setDepth(500); // Lower depth
+        // Create main UI container - simplified
+        this.uiContainer = this.add.container(0, 0).setDepth(500);
         
-        // UI transparency and minimization options
+        // UI state
         this.uiVisible = true;
-        this.uiMinimized = false;
         
-        console.log('🎮 Minimal, non-intrusive UI system initialized');
+        console.log('🎮 Ultra-minimal mobile UI system initialized');
     }
     
     createMainHUD() {
@@ -567,19 +548,19 @@ export default class GameScene extends Phaser.Scene {
     createMinimalScore(x, y, width, height) {
         const centerY = y + height / 2;
         
-        // Simple score display
-        this.scoreIcon = this.add.text(x + 5, centerY, '💎', {
-            fontSize: Math.max(14, 16 * this.minScale) + 'px'
+        // Simple score display with larger, mobile-friendly fonts
+        this.scoreIcon = this.add.text(x + 8, centerY, '💎', {
+            fontSize: Math.max(20, 24 * this.minScale) + 'px' // Increased from 14/16
         }).setOrigin(0, 0.5).setDepth(501);
         this.uiContainer.add(this.scoreIcon);
         
-        this.scoreText = this.add.text(x + 25, centerY, '0', {
-            fontSize: Math.max(14, 16 * this.minScale) + 'px',
-            fill: '#ffffff',
+        this.scoreText = this.add.text(x + 35, centerY, '0', {
+            fontSize: Math.max(20, 24 * this.minScale) + 'px', // Increased from 14/16
+            fill: '#FFFFFF',
             fontWeight: 'bold',
             fontFamily: 'Arial, sans-serif',
             stroke: '#000000',
-            strokeThickness: 1
+            strokeThickness: 2 // Increased stroke for better visibility
         }).setOrigin(0, 0.5).setDepth(501);
         this.uiContainer.add(this.scoreText);
     }
@@ -600,22 +581,22 @@ export default class GameScene extends Phaser.Scene {
     createMinimalCombo(x, y, width, height) {
         const centerY = y + height / 2;
         
-        // Combo display (only shows when active)
+        // Combo display (only shows when active) - improved mobile visibility
         this.comboText = this.add.text(x + width/2, centerY, '', {
-            fontSize: Math.max(12, 14 * this.minScale) + 'px',
-            fill: '#f39c12',
+            fontSize: Math.max(18, 22 * this.minScale) + 'px', // Increased from 12/14
+            fill: '#F39C12',
             fontWeight: 'bold',
             stroke: '#000000',
-            strokeThickness: 1,
+            strokeThickness: 2, // Increased stroke for better visibility
             fontFamily: 'Arial, sans-serif'
         }).setOrigin(0.5, 0.5).setDepth(501);
         this.uiContainer.add(this.comboText);
     }
     
     createUIToggle() {
-        // Music toggle button - positioned in top right corner
-        this.musicToggleBtn = this.add.text(this.screenWidth - 30, 30, '🎵', {
-            fontSize: Math.max(18, 20 * this.minScale) + 'px',
+        // Music toggle button - positioned in top right corner, improved for mobile
+        this.musicToggleBtn = this.add.text(this.screenWidth - 35, 35, '🎵', {
+            fontSize: Math.max(24, 28 * this.minScale) + 'px', // Increased from 18/20
             interactive: true,
             fill: '#FFD700',
             stroke: '#000000',
@@ -673,12 +654,12 @@ export default class GameScene extends Phaser.Scene {
             this.heartsContainer.removeAll(true);
         }
         
-        const heartSize = Math.max(16, 18 * this.minScale);
-        const heartSpacing = heartSize + 4;
+        const heartSize = Math.max(22, 26 * this.minScale); // Increased from 16/18
+        const heartSpacing = heartSize + 6; // Slightly more spacing
         const maxHearts = this.player ? this.player.maxHealth : 3;
         const currentHealth = this.player ? this.player.health : 0;
         
-        // Create compact hearts
+        // Create larger, more visible hearts for mobile
         for (let i = 0; i < maxHearts; i++) {
             const heartX = i * heartSpacing;
             const heartY = 0;
@@ -688,7 +669,7 @@ export default class GameScene extends Phaser.Scene {
             
             const heart = this.add.text(heartX, heartY, heartEmoji, {
                 fontSize: `${heartSize}px`,
-                alpha: isActive ? 1.0 : 0.4
+                alpha: isActive ? 1.0 : 0.5 // Slightly more visible when empty
             }).setOrigin(0, 0.5).setDepth(501);
             
             this.heartsContainer.add(heart);
@@ -746,6 +727,11 @@ export default class GameScene extends Phaser.Scene {
     }
     
     updateActivePowerUpDisplay() {
+        // Safety check - only update if container exists
+        if (!this.activePowerUpsContainer) {
+            return;
+        }
+        
         // Clear existing displays
         this.activePowerUpsContainer.removeAll(true);
         this.activePowerUpDisplays = [];
@@ -1780,19 +1766,18 @@ export default class GameScene extends Phaser.Scene {
             this.screenWidth, this.screenHeight, 0x000000, 0.95).setDepth(2500);
         gameOverContainer.add(overlay);
         
-        // Larger, more dramatic GAME OVER text with improved appearance for mobile
-        // Use smaller font on small screens, responsive design
-        const fontSize = Math.min(32, Math.max(24, Math.floor(this.screenWidth * 0.09))) + 'px';
+        // SIMPLE, CLEAR GAME OVER TEXT - Following mobile game best practices
+        const fontSize = Math.min(48, Math.max(36, Math.floor(this.screenWidth * 0.12))) + 'px';
         
-        const gameOverText = this.add.text(this.centerX, this.screenHeight * 0.3, 'GAME OVER', {
+        const gameOverText = this.add.text(this.centerX, this.screenHeight * 0.25, 'GAME OVER', {
             fontSize: fontSize,
-            fill: '#FF3333',
+            fill: '#FFFFFF',
             fontWeight: 'bold',
             stroke: '#000000',
-            strokeThickness: 4,
+            strokeThickness: 6,
             shadow: {
-                offsetX: 2,
-                offsetY: 2,
+                offsetX: 4,
+                offsetY: 4,
                 color: '#000000',
                 blur: 0,
                 fill: true
@@ -1822,17 +1807,17 @@ export default class GameScene extends Phaser.Scene {
         // Format score with commas for better readability
         const formattedScore = this.score.toLocaleString();
         
-        // Show final score - responsive sizing
-        const scoreSize = Math.min(28, Math.max(18, Math.floor(this.screenWidth * 0.06))) + 'px';
-        const finalScoreText = this.add.text(this.centerX, this.screenHeight * 0.45, `SCORE: ${formattedScore}`, {
+        // LARGE, CLEAR SCORE DISPLAY
+        const scoreSize = Math.min(40, Math.max(28, Math.floor(this.screenWidth * 0.08))) + 'px';
+        const finalScoreText = this.add.text(this.centerX, this.screenHeight * 0.4, formattedScore, {
             fontSize: scoreSize,
-            fill: '#FFFFFF',
+            fill: '#FFD700',
             fontWeight: 'bold',
             stroke: '#000000',
-            strokeThickness: 3,
+            strokeThickness: 4,
             shadow: {
-                offsetX: 2,
-                offsetY: 2,
+                offsetX: 3,
+                offsetY: 3,
                 color: '#000000',
                 blur: 0,
                 fill: true
@@ -1840,25 +1825,24 @@ export default class GameScene extends Phaser.Scene {
         }).setOrigin(0.5).setAlpha(0).setDepth(2501);
         gameOverContainer.add(finalScoreText);
         
-        // Animate final score
+        // Simple score animation
         this.tweens.add({
             targets: finalScoreText,
             alpha: 1,
             scale: { from: 0.8, to: 1 },
-            duration: 400,
-            delay: 300,
+            duration: 300,
+            delay: 200,
             ease: 'Back.easeOut'
         });
         
-        // Add continue button - properly sized for mobile
-        const buttonSize = Math.min(24, Math.max(18, Math.floor(this.screenWidth * 0.05))) + 'px';
-        const continueButton = this.add.text(this.centerX, this.screenHeight * 0.65, 'TAP TO CONTINUE', {
+        // SIMPLE CONTINUE BUTTON
+        const buttonSize = Math.min(32, Math.max(24, Math.floor(this.screenWidth * 0.06))) + 'px';
+        const continueButton = this.add.text(this.centerX, this.screenHeight * 0.7, 'TAP TO CONTINUE', {
             fontSize: buttonSize,
-            fill: '#00FF00',
+            fill: '#FFFFFF',
             fontWeight: 'bold',
             stroke: '#000000',
-            strokeThickness: 3,
-            padding: { x: 20, y: 10 }
+            strokeThickness: 4
         }).setOrigin(0.5).setAlpha(0).setInteractive().setDepth(2501);
         gameOverContainer.add(continueButton);
         
@@ -1884,7 +1868,7 @@ export default class GameScene extends Phaser.Scene {
         });
         
         // Function to handle game continuation
-        const continueGame = () => {
+        const continueGame = async () => {
             // Visual feedback before transition
             this.tweens.add({
                 targets: [continueButton],
@@ -1900,14 +1884,14 @@ export default class GameScene extends Phaser.Scene {
                         targets: gameOverContainer,
                         alpha: 0,
                         duration: 300,
-                        onComplete: () => {
+                        onComplete: async () => {
                             // Clean up
                             gameOverContainer.destroy();
                             
                             // Show leaderboard entry form
                             try {
                                 if (this.leaderboard) {
-                                    this.leaderboard.showNameEntryForm(this.score);
+                                    await this.leaderboard.showNameEntryForm(this.score);
                                 } else {
                                     debugLogger.error("Leaderboard not available");
                                     this.scene.restart();

@@ -1,6 +1,7 @@
 import express from 'express';
 import { body, query, validationResult } from 'express-validator';
 import { db } from '../database/init.js';
+import { verifyToken, optionalAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 

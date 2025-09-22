@@ -214,15 +214,15 @@ export default class CollectibleManager {
         item.setData('baseSpeed', 1.0);
         item.setData('spawnY', spawnY); // Store original spawn Y for floating reference
         
-        // Floating animation DISABLED - items move smoothly without bouncing
-        // this.scene.tweens.add({
-        //     targets: item,
-        //     y: spawnY - 10,
-        //     duration: 3000,
-        //     yoyo: true,
-        //     repeat: -1,
-        //     ease: 'Sine.easeInOut'
-        // });
+        // Gentle floating animation - reduced amplitude for smoother movement
+        this.scene.tweens.add({
+            targets: item,
+            y: spawnY - 5, // Much smaller vertical movement
+            duration: 4000, // Slower movement
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
         
         this.coffeeBeans.add(item);
     }
@@ -306,15 +306,15 @@ export default class CollectibleManager {
         // Store movement data for responsive speed
         powerUp.setData('baseSpeed', 0.9); // Slightly slower than beans
         
-        // Floating movement DISABLED - power-ups move smoothly without bouncing
-        // this.scene.tweens.add({
-        //     targets: powerUp,
-        //     y: spawnY - 15,
-        //     duration: 2500,
-        //     yoyo: true,
-        //     repeat: -1,
-        //     ease: 'Sine.easeInOut'
-        // });
+        // Gentle floating movement - reduced amplitude for power-ups
+        this.scene.tweens.add({
+            targets: powerUp,
+            y: spawnY - 8, // Small vertical movement
+            duration: 3500, // Slower movement
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
         
         // Glowing effect DISABLED - keep consistent appearance
         // this.scene.tweens.add({

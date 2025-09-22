@@ -365,6 +365,7 @@ export default class PreloaderScene extends Phaser.Scene {
             fontSize: titleFontSize,
             fill: '#FFD700',
             fontWeight: 'bold',
+            fontFamily: 'Arial, sans-serif',
             stroke: '#8B4513',
             strokeThickness: 4,
             shadow: { offsetX: 2, offsetY: 2, color: '#000', blur: 6, fill: true }
@@ -386,6 +387,7 @@ export default class PreloaderScene extends Phaser.Scene {
             fontSize: subtitleFontSize,
             fill: '#DEB887',
             fontWeight: 'bold',
+            fontFamily: 'Arial, sans-serif',
             stroke: '#000000',
             strokeThickness: 2
         }).setOrigin(0.5).setDepth(103);
@@ -409,181 +411,278 @@ export default class PreloaderScene extends Phaser.Scene {
             ease: 'Sine.easeInOut'
         });
         
-        // MAIN CONTENT - Optimized for 16:9 aspect ratio
+        // MAIN CONTENT - Improved sizing and spacing to fit everything in panel
         const contentStartY = height * 0.28;
-        const sectionSpacing = height * 0.04;
-        const itemSpacing = height * 0.025;
+        const sectionSpacing = height * 0.04; // Slightly reduced for better fit
+        const itemSpacing = height * 0.025; // Slightly reduced for better fit
         
-        // Smaller, more compact font sizes for 16:9
-        const sectionTitleSize = Math.max(14, Math.min(18, width * 0.038)) + 'px';
-        const contentTextSize = Math.max(10, Math.min(13, width * 0.028)) + 'px';
-        const iconSize = Math.max(12, Math.min(18, width * 0.035)) + 'px';
+        // Improved font sizes for better readability
+        const sectionTitleSize = Math.max(18, Math.min(24, width * 0.05)) + 'px';
+        const contentTextSize = Math.max(14, Math.min(16, width * 0.035)) + 'px';
+        const iconSize = Math.max(16, Math.min(22, width * 0.045)) + 'px';
         
-        // HOW TO PLAY SECTION - Enhanced with better visual hierarchy
-        const howToPlayTitle = this.add.text(width/2, contentStartY, 'HOW TO PLAY', {
-            fontSize: sectionTitleSize,
-            fill: '#FFD700',
+        // MINIMAL RUNNER GAME DESIGN - Following Flappy Bird/Temple Run best practices
+        // No complex panels or cards - just clean, centered content
+        
+        // SIMPLE INSTRUCTION TEXT - Like Flappy Bird
+        let currentY = contentStartY + height * 0.05;
+        
+        const instructionText = this.add.text(width/2, currentY, 'TAP TO FLY', {
+            fontSize: Math.max(28, 36 * (width/480)) + 'px',
+            fill: '#FFFFFF',
             fontWeight: 'bold',
-            stroke: '#8B4513',
-            strokeThickness: 3,
-            shadow: { offsetX: 2, offsetY: 2, color: '#000', blur: 4, fill: true }
-        }).setOrigin(0.5).setDepth(103);
-        introGroup.add(howToPlayTitle);
-        
-        // Controls with better formatting
-        const controls = [
-            '• Tap to make bird fly up',
-            '• Release to let bird fall down', 
-            '• Collect coffee and power-ups',
-            '• Avoid obstacles to survive'
-        ];
-        
-        let currentY = contentStartY + sectionSpacing;
-        
-        controls.forEach((control, index) => {
-            const controlText = this.add.text(width * 0.1, currentY, control, {
-                fontSize: contentTextSize,
-                fill: '#F5DEB3',
-                stroke: '#000000',
-                strokeThickness: 1,
-                wordWrap: { width: width * 0.8 }
-            }).setOrigin(0, 0.5).setDepth(103);
-            introGroup.add(controlText);
-            currentY += itemSpacing;
-        });
-        
-        // COLLECTIBLES SECTION - Enhanced with actual game items
-        currentY += sectionSpacing * 0.8;
-        
-        const collectiblesTitle = this.add.text(width/2, currentY, 'COLLECTIBLES', {
-            fontSize: sectionTitleSize,
-            fill: '#FFD700',
-            fontWeight: 'bold',
-            stroke: '#8B4513',
-            strokeThickness: 3,
-            shadow: { offsetX: 2, offsetY: 2, color: '#000', blur: 4, fill: true }
-        }).setOrigin(0.5).setDepth(102);
-        introGroup.add(collectiblesTitle);
-        
-        currentY += sectionSpacing;
-        
-        // Simplified collectibles for better fit
-        const collectibles = [
-            { icon: '☕', text: 'Coffee: Score points' },
-            { icon: '🥤', text: 'Smoothies: Health & speed' }
-        ];
-        
-        collectibles.forEach((item) => {
-            const itemIcon = this.add.text(width * 0.15, currentY, item.icon, {
-                fontSize: iconSize,
-                stroke: '#000000',
-                strokeThickness: 1
-            }).setOrigin(0.5).setDepth(102);
-            
-            const itemText = this.add.text(width * 0.25, currentY, item.text, {
-                fontSize: contentTextSize,
-                fill: '#F5DEB3',
-                stroke: '#000000',
-                strokeThickness: 1,
-                wordWrap: { width: width * 0.65 }
-            }).setOrigin(0, 0.5).setDepth(102);
-            
-            introGroup.add(itemIcon);
-            introGroup.add(itemText);
-            currentY += itemSpacing;
-        });
-        
-        // POWER-UPS SECTION - Updated with actual power-ups
-        currentY += sectionSpacing * 0.8;
-        
-        const powerUpsTitle = this.add.text(width/2, currentY, 'POWER-UPS', {
-            fontSize: sectionTitleSize,
-            fill: '#FFD700',
-            fontWeight: 'bold',
-            stroke: '#8B4513',
-            strokeThickness: 3,
-            shadow: { offsetX: 2, offsetY: 2, color: '#000', blur: 4, fill: true }
-        }).setOrigin(0.5).setDepth(102);
-        introGroup.add(powerUpsTitle);
-        
-        currentY += sectionSpacing;
-        
-        // Simplified power-ups for better fit
-        const powerUps = [
-            { icon: '🥐', text: 'Shield: Invulnerability' },
-            { icon: '⚡', text: 'Speed Boost: Move faster' }
-        ];
-        
-        powerUps.forEach((item) => {
-            const itemIcon = this.add.text(width * 0.15, currentY, item.icon, {
-                fontSize: iconSize,
-                stroke: '#000000',
-                strokeThickness: 1
-            }).setOrigin(0.5).setDepth(102);
-            
-            const itemText = this.add.text(width * 0.25, currentY, item.text, {
-                fontSize: contentTextSize,
-                fill: '#F5DEB3',
-                stroke: '#000000',
-                strokeThickness: 1,
-                wordWrap: { width: width * 0.65 }
-            }).setOrigin(0, 0.5).setDepth(102);
-            
-            introGroup.add(itemIcon);
-            introGroup.add(itemText);
-            currentY += itemSpacing;
-        });
-        
-        // START BUTTON - Optimized for 16:9 aspect ratio
-        const buttonY = Math.min(currentY + height * 0.04, height * 0.85);
-        
-        // Smaller button for better 16:9 fit
-        const buttonWidth = Math.min(width * 0.5, 240);
-        const buttonHeight = Math.max(height * 0.06, 40);
-        
-        // Create button with coffee brown gradient effect
-        const buttonBg = this.add.rectangle(width/2, buttonY, buttonWidth, buttonHeight, 0x8B4513)
-            .setStrokeStyle(4, 0xFFD700)
-            .setDepth(102);
-        introGroup.add(buttonBg);
-        
-        // Add inner glow effect
-        const buttonGlow = this.add.rectangle(width/2, buttonY, buttonWidth - 8, buttonHeight - 8, 0xD2691E, 0.3)
-            .setDepth(102);
-        introGroup.add(buttonGlow);
-        
-        const buttonFontSize = Math.max(14, Math.min(18, width * 0.04)) + 'px';
-        
-        const startButton = this.add.text(width/2, buttonY, 'START GAME', {
-            fontSize: buttonFontSize,
-            fill: '#FFD700',
-            fontWeight: 'bold',
+            fontFamily: 'Arial, sans-serif',
             stroke: '#000000',
-            strokeThickness: 3,
-            shadow: { offsetX: 2, offsetY: 2, color: '#000', blur: 4, fill: true }
-        }).setOrigin(0.5).setDepth(103).setInteractive();
-        introGroup.add(startButton);
+            strokeThickness: 4,
+            shadow: { offsetX: 3, offsetY: 3, color: '#000', blur: 8, fill: true }
+        }).setOrigin(0.5).setDepth(103);
+        introGroup.add(instructionText);
         
-        // Make button interactive
-        buttonBg.setInteractive();
-        buttonGlow.setInteractive();
-        
-        // Enhanced pulsing animation
+        // Add subtle pulsing animation
         this.tweens.add({
-            targets: [buttonBg, buttonGlow, startButton],
-            scaleX: 1.08,
-            scaleY: 1.08,
+            targets: instructionText,
+            scale: 1.1,
             duration: 1000,
             yoyo: true,
             repeat: -1,
             ease: 'Sine.easeInOut'
         });
         
-        // Subtle glow animation
+        currentY += height * 0.1;
+        
+        // Game elements preview using actual game textures - comprehensive display
+        const collectibleItems = [
+            { texture: 'coffeeBean', label: 'COFFEE', scale: 0.12, points: '20-150pts' },
+            { texture: 'smoothie', label: 'SMOOTHIE', scale: 0.08, points: '15-25pts + Health' },
+            { texture: 'bagel', label: 'BAGEL', scale: 0.12, points: '30-75pts + Multiplier' }
+        ];
+        
+        const powerUpItems = [
+            { texture: 'croissantShieldPowerUp', label: 'SHIELD', scale: 0.08, effect: '3s Protection' },
+            { texture: 'espressoShot', label: 'SPEED', scale: 0.08, effect: '4s Boost' },
+            { texture: 'baristaNPC', label: 'BARISTA', scale: 0.08, effect: 'Multi-Effect' }
+        ];
+        
+        const obstacleItems = [
+            { texture: 'spilledCoffeeCup', label: 'AVOID', scale: 0.06, effect: 'Loses Health' }
+        ];
+        
+        // COLLECTIBLES Section
+        const collectTitle = this.add.text(width/2, currentY, 'COLLECT', {
+            fontSize: sectionTitleSize,
+            fill: '#00FF00',
+            fontWeight: 'bold',
+            fontFamily: 'Arial, sans-serif',
+            stroke: '#000000',
+            strokeThickness: 2
+        }).setOrigin(0.5).setDepth(103);
+        introGroup.add(collectTitle);
+        
+        currentY += height * 0.05;
+        
+        // Display collectible items in a row
+        const collectSpacing = width * 0.25;
+        collectibleItems.forEach((item, index) => {
+            const x = width/2 + (index - 1) * collectSpacing;
+            
+            // Game element image
+            const gameElement = this.add.image(x, currentY, item.texture)
+                .setScale(item.scale * (width/480))
+                .setOrigin(0.5)
+                .setDepth(103);
+            introGroup.add(gameElement);
+            
+            // Label
+            const label = this.add.text(x, currentY + height * 0.04, item.label, {
+                fontSize: Math.max(10, 12 * (width/480)) + 'px',
+                fill: '#FFD700',
+                fontWeight: 'bold',
+                fontFamily: 'Arial, sans-serif',
+                stroke: '#000000',
+                strokeThickness: 1
+            }).setOrigin(0.5).setDepth(103);
+            introGroup.add(label);
+            
+            // Points info
+            const points = this.add.text(x, currentY + height * 0.065, item.points, {
+                fontSize: Math.max(8, 10 * (width/480)) + 'px',
+                fill: '#FFFFFF',
+                fontFamily: 'Arial, sans-serif',
+                stroke: '#000000',
+                strokeThickness: 1
+            }).setOrigin(0.5).setDepth(103);
+            introGroup.add(points);
+            
+            // Add gentle floating animation
+            this.tweens.add({
+                targets: [gameElement, label, points],
+                y: `+=${3 + index}`,
+                duration: 2000 + index * 200,
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut'
+            });
+        });
+        
+        currentY += height * 0.1;
+        
+        // POWER-UPS Section
+        const powerTitle = this.add.text(width/2, currentY, 'POWER-UPS', {
+            fontSize: sectionTitleSize,
+            fill: '#FF6600',
+            fontWeight: 'bold',
+            fontFamily: 'Arial, sans-serif',
+            stroke: '#000000',
+            strokeThickness: 2
+        }).setOrigin(0.5).setDepth(103);
+        introGroup.add(powerTitle);
+        
+        currentY += height * 0.05;
+        
+        // Display power-up items in a row
+        powerUpItems.forEach((item, index) => {
+            const x = width/2 + (index - 1) * collectSpacing;
+            
+            // Game element image
+            const gameElement = this.add.image(x, currentY, item.texture)
+                .setScale(item.scale * (width/480))
+                .setOrigin(0.5)
+                .setDepth(103);
+            introGroup.add(gameElement);
+            
+            // Label
+            const label = this.add.text(x, currentY + height * 0.04, item.label, {
+                fontSize: Math.max(10, 12 * (width/480)) + 'px',
+                fill: '#FFD700',
+                fontWeight: 'bold',
+                fontFamily: 'Arial, sans-serif',
+                stroke: '#000000',
+                strokeThickness: 1
+            }).setOrigin(0.5).setDepth(103);
+            introGroup.add(label);
+            
+            // Effect info
+            const effect = this.add.text(x, currentY + height * 0.065, item.effect, {
+                fontSize: Math.max(8, 10 * (width/480)) + 'px',
+                fill: '#FFFFFF',
+                fontFamily: 'Arial, sans-serif',
+                stroke: '#000000',
+                strokeThickness: 1
+            }).setOrigin(0.5).setDepth(103);
+            introGroup.add(effect);
+            
+            // Add gentle floating animation
+            this.tweens.add({
+                targets: [gameElement, label, effect],
+                y: `+=${3 + index}`,
+                duration: 2500 + index * 150,
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut'
+            });
+        });
+        
+        currentY += height * 0.08;
+        
+        // OBSTACLES Section
+        const obstacleTitle = this.add.text(width/2, currentY, 'OBSTACLES', {
+            fontSize: sectionTitleSize,
+            fill: '#FF0000',
+            fontWeight: 'bold',
+            fontFamily: 'Arial, sans-serif',
+            stroke: '#000000',
+            strokeThickness: 2
+        }).setOrigin(0.5).setDepth(103);
+        introGroup.add(obstacleTitle);
+        
+        currentY += height * 0.05;
+        
+        // Display obstacle items
+        obstacleItems.forEach((item, index) => {
+            const x = width/2;
+            
+            // Game element image
+            const gameElement = this.add.image(x, currentY, item.texture)
+                .setScale(item.scale * (width/480))
+                .setOrigin(0.5)
+                .setDepth(103);
+            introGroup.add(gameElement);
+            
+            // Label
+            const label = this.add.text(x, currentY + height * 0.04, item.label, {
+                fontSize: Math.max(10, 12 * (width/480)) + 'px',
+                fill: '#FFD700',
+                fontWeight: 'bold',
+                fontFamily: 'Arial, sans-serif',
+                stroke: '#000000',
+                strokeThickness: 1
+            }).setOrigin(0.5).setDepth(103);
+            introGroup.add(label);
+            
+            // Effect info
+            const effect = this.add.text(x, currentY + height * 0.065, item.effect, {
+                fontSize: Math.max(8, 10 * (width/480)) + 'px',
+                fill: '#FFFFFF',
+                fontFamily: 'Arial, sans-serif',
+                stroke: '#000000',
+                strokeThickness: 1
+            }).setOrigin(0.5).setDepth(103);
+            introGroup.add(effect);
+            
+            // Add gentle floating animation
+            this.tweens.add({
+                targets: [gameElement, label, effect],
+                y: `+=${4}`,
+                duration: 3000,
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut'
+            });
+        });
+        
+        // LARGE PROMINENT START BUTTON - Following mobile game best practices
+        currentY += height * 0.08; // Reduced spacing since we have more content
+        const buttonY = currentY;
+        
+        // Large, finger-friendly button
+        const buttonWidth = Math.min(width * 0.8, 350);
+        const buttonHeight = Math.max(height * 0.12, 70);
+        
+        // Create button container for proper alignment
+        const buttonContainer = this.add.container(width/2, buttonY);
+        buttonContainer.setDepth(103);
+        introGroup.add(buttonContainer);
+        
+        // Simple, bold button design - centered in container
+        const startButton = this.add.graphics();
+        startButton.fillStyle(0x2ECC71, 1); // Bright green like successful mobile games
+        startButton.lineStyle(6, 0xFFFFFF, 1); // White border for contrast
+        startButton.fillRoundedRect(-buttonWidth/2, -buttonHeight/2, buttonWidth, buttonHeight, 20);
+        startButton.strokeRoundedRect(-buttonWidth/2, -buttonHeight/2, buttonWidth, buttonHeight, 20);
+        buttonContainer.add(startButton);
+        
+        // Button text - centered in container
+        const buttonText = this.add.text(0, 0, 'START', {
+            fontSize: Math.max(32, 40 * (width/480)) + 'px',
+            fill: '#FFFFFF',
+            fontWeight: 'bold',
+            fontFamily: 'Arial, sans-serif',
+            stroke: '#2ECC71',
+            strokeThickness: 3
+        }).setOrigin(0.5);
+        buttonContainer.add(buttonText);
+        
+        // Interactive area - centered in container
+        const buttonInteractive = this.add.rectangle(0, 0, buttonWidth, buttonHeight)
+            .setAlpha(0.001)
+            .setInteractive();
+        buttonContainer.add(buttonInteractive);
+        
+        // Simple pulsing animation for entire button container
         this.tweens.add({
-            targets: buttonGlow,
-            alpha: 0.6,
-            duration: 1200,
+            targets: buttonContainer,
+            scale: 1.05,
+            duration: 800,
             yoyo: true,
             repeat: -1,
             ease: 'Sine.easeInOut'
@@ -593,12 +692,11 @@ export default class PreloaderScene extends Phaser.Scene {
         const startGame = () => {
             console.log('🎮 START GAME button clicked!');
             try {
-                // Enhanced visual feedback
+                // Simple visual feedback on the container
                 this.tweens.add({
-                    targets: [buttonBg, buttonGlow, startButton],
-                    scaleX: 0.92,
-                    scaleY: 0.92,
-                    duration: 120,
+                    targets: buttonContainer,
+                    scale: 0.95,
+                    duration: 100,
                     yoyo: true,
                     onComplete: () => {
                         console.log('🎮 Button animation complete, starting GameScene...');
@@ -618,20 +716,10 @@ export default class PreloaderScene extends Phaser.Scene {
             }
         };
         
-        // Enhanced touch event listeners
-        startButton.on('pointerdown', startGame);
-        buttonBg.on('pointerdown', startGame);
-        buttonGlow.on('pointerdown', startGame);
+        // Simple touch event listeners
+        buttonInteractive.on('pointerdown', startGame);
         
-        // Larger touch area for better mobile experience
-        const touchArea = this.add.rectangle(
-            width/2, 
-            buttonY, 
-            buttonWidth + 30, 
-            buttonHeight + 30
-        ).setAlpha(0).setInteractive().setDepth(101);
-        introGroup.add(touchArea);
-        touchArea.on('pointerdown', startGame);
+        // The buttonInteractive already provides the touch area
     }
 
 }

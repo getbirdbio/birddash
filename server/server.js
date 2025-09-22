@@ -12,7 +12,8 @@ import leaderboardRoutes from './routes/leaderboard.js';
 import userRoutes from './routes/users.js';
 
 // Import database initialization
-import { initializeDatabase } from './database/init.js';
+import { initializeEnhancedDatabase, getDatabase, databaseHealthCheck } from './database/enhanced-init.js';
+import config from './config/environment.js';
 
 // Load environment variables
 dotenv.config();
@@ -46,15 +47,17 @@ app.use(helmet({
 
 // CORS configuration
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
+    'http://localhost:8000',  // Added port 8000 for the game client
     'http://localhost:8001',
     'http://localhost:3000'
 ];
 
 app.use(cors({
     origin: allowedOrigins,
-    credentials: true,
+    credentials: true, // Required for HTTP-only cookies
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Set-Cookie'] // Allow frontend to see cookie headers
 }));
 
 // Rate limiting
@@ -71,31 +74,74 @@ app.use('/api/', limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Cookie parsing middleware
+import cookieParser from 'cookie-parser';
+app.use(cookieParser());
+
+// Session middleware for CSRF protection
+import session from 'express-session';
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'fallback-session-secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+}));
+
 // Serve static files (game assets)
 app.use(express.static(path.join(__dirname, '../')));
+
+// CSRF token endpoint
+import { getCSRFToken } from './middleware/csrf.js';
+app.get('/api/csrf-token', getCSRFToken);
 
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/users', userRoutes);
 
-// Health check endpoint with detailed info
-app.get('/api/health', (req, res) => {
+// Enhanced health check endpoint with detailed info
+app.get('/api/health', async (req, res) => {
     console.log('🏥 Health check requested from:', req.ip);
     
-    const healthData = { 
-        status: 'OK', 
-        timestamp: new Date().toISOString(),
-        version: '1.0.0',
-        port: PORT,
-        environment: process.env.NODE_ENV || 'development',
-        uptime: process.uptime(),
-        memory: process.memoryUsage(),
-        railway: !!process.env.RAILWAY_ENVIRONMENT
-    };
-    
-    console.log('🏥 Health check response:', healthData);
-    res.json(healthData);
+    try {
+        // Check database health
+        const dbHealth = await databaseHealthCheck();
+        
+        // Check system health
+        const systemHealth = {
+            status: 'healthy',
+            timestamp: new Date().toISOString(),
+            version: config.app.version,
+            environment: config.app.environment,
+            port: config.app.port,
+            uptime: process.uptime(),
+            memory: process.memoryUsage(),
+            database: dbHealth,
+            features: {
+                enhancedDB: config.database.useEnhanced,
+                analytics: config.analytics.enabled,
+                socialFeatures: config.features.socialFeatures,
+                performanceMonitoring: config.performance.enabled
+            }
+        };
+        
+        // Determine overall health status
+        const overallStatus = dbHealth.status === 'healthy' ? 'healthy' : 'degraded';
+        systemHealth.status = overallStatus;
+        
+        res.status(overallStatus === 'healthy' ? 200 : 503).json(systemHealth);
+    } catch (error) {
+        console.error('❌ Health check failed:', error);
+        res.status(503).json({
+            status: 'unhealthy',
+            error: error.message,
+            timestamp: new Date().toISOString()
+        });
+    }
 });
 
 // Root health check (in case Railway checks this)
@@ -184,9 +230,9 @@ async function startServer() {
     });
     
     try {
-        console.log('🗄️ Initializing database...');
-        await initializeDatabase();
-        console.log('✅ Database initialized successfully');
+        console.log('🗄️ Initializing enhanced database system...');
+        const database = await initializeEnhancedDatabase();
+        console.log('✅ Enhanced database system initialized successfully');
         
         const server = app.listen(PORT, '0.0.0.0', () => {
             console.log(`🚀 BirdDash server running on port ${PORT}`);

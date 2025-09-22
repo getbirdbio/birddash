@@ -276,35 +276,46 @@ export default class Leaderboard {
                 entryBg.strokeRoundedRect(-entryWidth/2, -entryHeight/2, entryWidth, entryHeight, 8);
                 entryContainer.add(entryBg);
                 
-                // Rank with medal icons for top 3
+                // Rank with medal icons for top 3 - improved mobile visibility
                 const rankText = index < 3 ? 
                     ['🥇', '🥈', '🥉'][index] : 
                     `${index + 1}.`;
                 const rank = this.scene.add.text(-entryWidth/2 + 30, 0, rankText, {
-                    fontSize: index < 3 ? '24px' : '18px',
+                    fontSize: index < 3 ? 
+                        Math.max(28, screenHeight * 0.033) + 'px' : 
+                        Math.max(20, screenHeight * 0.024) + 'px', // Responsive font sizes
                     fill: index < 3 ? '#FFD700' : '#FFFFFF',
-                    fontWeight: 'bold'
+                    fontWeight: 'bold',
+                    fontFamily: 'Arial, sans-serif'
                 }).setOrigin(0, 0.5).setDepth(5001);
                 entryContainer.add(rank);
-                // Name
-                const name = this.scene.add.text(-entryWidth/2 + 80, 0, entry.name, {
-                    fontSize: '16px',
+                // Name - improved mobile visibility and debugging
+                const displayName = entry.name || entry.username || 'Unknown Player';
+                debugLogger.log('leaderboard', `Displaying name for entry ${index}: "${displayName}"`);
+                
+                const name = this.scene.add.text(-entryWidth/2 + 80, 0, displayName, {
+                    fontSize: Math.max(18, screenHeight * 0.022) + 'px', // Larger, responsive font
                     fill: '#FFFFFF',
-                    fontWeight: 'bold'
+                    fontWeight: 'bold',
+                    fontFamily: 'Arial, sans-serif'
                 }).setOrigin(0, 0.5).setDepth(5001);
                 entryContainer.add(name);
-                // Score with number formatting
+                // Score with number formatting - improved mobile visibility
                 const formattedScore = entry.score.toLocaleString();
                 const score = this.scene.add.text(entryWidth/2 - 30, 0, formattedScore, {
-                    fontSize: '16px',
+                    fontSize: Math.max(18, screenHeight * 0.022) + 'px', // Larger, responsive font
                     fill: index < 3 ? '#FFD700' : '#FFFFFF',
-                    fontWeight: 'bold'
+                    fontWeight: 'bold',
+                    fontFamily: 'Arial, sans-serif'
                 }).setOrigin(1, 0.5).setDepth(5001);
                 entryContainer.add(score);
-                // Date (smaller, below name)
-                const date = this.scene.add.text(-entryWidth/2 + 80, entryHeight * 0.3, entry.date, {
-                    fontSize: '11px',
-                    fill: '#AAAAAA'
+                
+                // Date (smaller, below name) - improved mobile visibility
+                const dateText = entry.date || new Date().toLocaleDateString();
+                const date = this.scene.add.text(-entryWidth/2 + 80, entryHeight * 0.3, dateText, {
+                    fontSize: Math.max(12, screenHeight * 0.014) + 'px', // Responsive font
+                    fill: '#AAAAAA',
+                    fontFamily: 'Arial, sans-serif'
                 }).setOrigin(0, 0.5);
                 entryContainer.add(date);
                 
@@ -422,7 +433,7 @@ export default class Leaderboard {
         this.isShowingLeaderboard = false;
     }
 
-    showNameEntryForm(score) {
+    async showNameEntryForm(score) {
         debugLogger.score("Showing name entry form for score:", score);
         
         try {
@@ -432,14 +443,14 @@ export default class Leaderboard {
                 debugLogger.log('scores', "Found existing user:", existingUser.name);
                 // User exists with valid data, just update their score
                 try {
-                    const updatedLeaderboard = this.addScore({
+                    const updatedLeaderboard = await this.addScore({
                         name: existingUser.name,
                         phone: existingUser.phone,
                         score: score
                     });
                     
                     debugLogger.score("Score added to leaderboard, showing submission screen");
-                    this.showScoreSubmitted(updatedLeaderboard, score);
+                    await this.showScoreSubmitted(updatedLeaderboard, score);
                     return;
                 } catch (scoreError) {
                     debugLogger.error("Error adding score for existing user:", scoreError);
@@ -481,33 +492,37 @@ export default class Leaderboard {
         const centerY = this.scene.centerY || this.scene.cameras.main.centerY;
         const screenHeight = this.scene.screenHeight || this.scene.cameras.main.height;
         
-        // Title - positioned responsively
-        const title = this.scene.add.text(centerX, centerY - (screenHeight * 0.2), 'NEW HIGH SCORE!', {
-            fontSize: Math.max(24, 28 * this.scene.minScale) + 'px',
+        // Title - better positioned and styled
+        const title = this.scene.add.text(centerX, centerY - (screenHeight * 0.25), 'NEW HIGH SCORE!', {
+            fontSize: Math.max(28, 32 * (this.scene.minScale || 1)) + 'px',
             fill: '#FFD700',
             fontWeight: 'bold',
-            stroke: '#000000',
-            strokeThickness: 3
+            stroke: '#8B4513',
+            strokeThickness: 4,
+            shadow: { offsetX: 3, offsetY: 3, color: '#000', blur: 8, fill: true }
         }).setOrigin(0.5).setDepth(2600);
         formGroup.add(title);
 
-        // Score display - larger and more prominent
-        const scoreText = this.scene.add.text(centerX, centerY - (screenHeight * 0.1), `Score: ${score.toLocaleString()}`, {
-            fontSize: Math.max(22, 26 * this.scene.minScale) + 'px',
+        // Score display - improved positioning and styling
+        const scoreText = this.scene.add.text(centerX, centerY - (screenHeight * 0.15), `Final Score: ${score.toLocaleString()}`, {
+            fontSize: Math.max(24, 28 * (this.scene.minScale || 1)) + 'px',
             fill: '#FFFFFF',
             fontWeight: 'bold',
             stroke: '#000000',
-            strokeThickness: 2
+            strokeThickness: 3,
+            shadow: { offsetX: 2, offsetY: 2, color: '#000', blur: 6, fill: true }
         }).setOrigin(0.5).setDepth(2600);
         formGroup.add(scoreText);
 
-        // Instructions - clearer text POSITIONED ABOVE THE FORM
-        const instructions = this.scene.add.text(centerX, centerY - (screenHeight * 0.05), 'Enter your details:', {
-            fontSize: Math.max(16, 18 * this.scene.minScale) + 'px',
-            fill: '#FFFFFF',
+        // Instructions - better positioned and more prominent
+        const instructions = this.scene.add.text(centerX, centerY - (screenHeight * 0.08), 'Enter your details to save your score:', {
+            fontSize: Math.max(18, 20 * (this.scene.minScale || 1)) + 'px',
+            fill: '#F5DEB3',
             fontWeight: 'bold',
             stroke: '#000000',
-            strokeThickness: 1
+            strokeThickness: 2,
+            align: 'center',
+            wordWrap: { width: screenWidth * 0.8, useAdvancedWrap: true }
         }).setOrigin(0.5).setDepth(2600);
         formGroup.add(instructions);
 
@@ -516,29 +531,30 @@ export default class Leaderboard {
     }
 
     createInputElements(score, formGroup) {
-        // Create responsive input container with higher z-index to ensure it's on top
+        // Create responsive input container with improved positioning
         const inputContainer = document.createElement('div');
         inputContainer.style.cssText = `
             position: absolute;
-            top: 50%;
+            top: 55%;
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 3000;
             text-align: center;
-            width: 90%;
-            max-width: 320px;
-            padding: 20px;
+            width: 85%;
+            max-width: 380px;
+            padding: 25px;
             box-sizing: border-box;
         `;
-        // Create form wrapper with better mobile styling
+        // Create form wrapper with enhanced styling
         const formWrapper = document.createElement('div');
         formWrapper.style.cssText = `
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #FFD700;
-            border-radius: 15px;
-            padding: 30px 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
+            background: linear-gradient(145deg, rgba(0, 0, 0, 0.9), rgba(20, 20, 20, 0.85));
+            border: 3px solid #FFD700;
+            border-radius: 20px;
+            padding: 35px 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7), inset 0 2px 10px rgba(255, 215, 0, 0.1);
+            backdrop-filter: blur(8px);
+            position: relative;
         `;
         // Name input with enhanced mobile styling
         this.nameInput = document.createElement('input');
@@ -550,20 +566,24 @@ export default class Leaderboard {
         this.nameInput.spellcheck = false;
         this.nameInput.style.cssText = `
             width: 100%;
-            height: 50px;
-            margin: 10px 0;
-            font-size: 16px;
+            height: 65px;
+            margin: 20px 0;
+            font-size: 20px;
+            font-weight: 600;
             text-align: center;
-            border: 2px solid #FFD700;
-            border-radius: 25px;
-            background: #FFFFFF;
-            color: #000000;
+            border: 4px solid #FFD700;
+            border-radius: 35px;
+            background: linear-gradient(145deg, #FFFFFF, #F8F8F8);
+            color: #2C3E50;
             box-sizing: border-box;
             transition: all 0.3s ease;
             outline: none;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
+            min-height: 44px;
+            touch-action: manipulation;
         `;
         
         // Add input event handlers with proper character support
@@ -577,11 +597,11 @@ export default class Leaderboard {
             }
         });
         
-        this.nameInput.addEventListener('keydown', (e) => {
+        this.nameInput.addEventListener('keydown', async (e) => {
             // Handle Enter key for form submission
             if (e.key === 'Enter') {
                 e.preventDefault();
-                this.submitScore(score);
+                await this.submitScore(score);
                 return;
             }
         });
@@ -606,20 +626,24 @@ export default class Leaderboard {
         this.phoneInput.inputMode = 'tel';
         this.phoneInput.style.cssText = `
             width: 100%;
-            height: 50px;
-            margin: 10px 0;
-            font-size: 16px;
+            height: 65px;
+            margin: 20px 0;
+            font-size: 20px;
+            font-weight: 600;
             text-align: center;
-            border: 2px solid #FFD700;
-            border-radius: 25px;
-            background: #FFFFFF;
-            color: #000000;
+            border: 4px solid #FFD700;
+            border-radius: 35px;
+            background: linear-gradient(145deg, #FFFFFF, #F8F8F8);
+            color: #2C3E50;
             box-sizing: border-box;
             transition: all 0.3s ease;
             outline: none;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
+            min-height: 44px;
+            touch-action: manipulation;
         `;
         
         // Add input validation for phone numbers
@@ -633,11 +657,11 @@ export default class Leaderboard {
             }
         });
         
-        this.phoneInput.addEventListener('keydown', (e) => {
+        this.phoneInput.addEventListener('keydown', async (e) => {
             debugLogger.log('scores', 'Phone key pressed:', e.key, 'Code:', e.code);
             if (e.key === 'Enter') {
                 e.preventDefault();
-                this.submitScore(score);
+                await this.submitScore(score);
             }
         });
         // Submit button with enhanced mobile styling and more prominent appearance
@@ -645,19 +669,23 @@ export default class Leaderboard {
         submitButton.textContent = 'SUBMIT SCORE';
         submitButton.style.cssText = `
             width: 100%;
-            height: 60px;
-            margin: 25px 0 15px 0;
-            font-size: 20px;
+            height: 70px;
+            margin: 35px 0 25px 0;
+            font-size: 24px;
             font-weight: bold;
-            color: #000000;
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            border: 3px solid #FFA500;
-            border-radius: 30px;
+            color: #2C3E50;
+            background: linear-gradient(135deg, #FFD700, #FFA500, #FF8C00);
+            border: 4px solid #B8860B;
+            border-radius: 40px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5), inset 0 2px 10px rgba(255, 255, 255, 0.3);
             outline: none;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            letter-spacing: 1px;
             -webkit-tap-highlight-color: transparent;
+            min-height: 44px;
+            touch-action: manipulation;
         `;
         // Add hover and focus effects
         const addInputEffects = (input) => {
@@ -693,10 +721,10 @@ export default class Leaderboard {
             submitButton.style.boxShadow = '0 6px 20px rgba(255, 215, 0, 0.4)';
         });
 
-        submitButton.onclick = () => {
+        submitButton.onclick = async () => {
             debugLogger.log('scores', "Submit button clicked");
             try {
-                this.submitScore(score);
+                await this.submitScore(score);
             } catch (error) {
                 debugLogger.error("Error in submit button handler:", error);
                 alert("There was an error submitting your score. Please try again.");
@@ -731,7 +759,7 @@ export default class Leaderboard {
         }, 100);
     }
 
-    submitScore(score) {
+    async submitScore(score) {
         try {
             const name = this.nameInput.value.trim();
             const phone = this.phoneInput.value.trim();
@@ -752,8 +780,8 @@ export default class Leaderboard {
             const userData = { name, phone };
             this.saveUser(userData);
             
-            // Add to leaderboard
-            const updatedLeaderboard = this.addScore({
+            // Add to leaderboard - await the result since addScore is async
+            const updatedLeaderboard = await this.addScore({
                 name,
                 phone,
                 score
@@ -763,7 +791,7 @@ export default class Leaderboard {
             this.cleanupForm();
             
             // Show success with current score
-            this.showScoreSubmitted(updatedLeaderboard, score);
+            await this.showScoreSubmitted(updatedLeaderboard, score);
             
             debugLogger.score("Score submitted successfully, showing results");
         } catch (error) {
@@ -775,7 +803,7 @@ export default class Leaderboard {
         }
     }
 
-    showScoreSubmitted(leaderboard, currentScore) {
+    async showScoreSubmitted(leaderboard, currentScore) {
         debugLogger.score("Showing score submission results");
         
         try {
@@ -783,14 +811,31 @@ export default class Leaderboard {
             
             // Find user's position based on current score, not highest score
             let position = 1; // Default to 1 if not found
+            let leaderboardData = [];
+            
             try {
-                position = leaderboard.findIndex(entry => entry.score === currentScore) + 1;
-                if (position <= 0) {
-                    debugLogger.warn("Position not found in leaderboard, defaulting to 1");
-                    position = 1;
+                // Handle both promise and direct return from addScore
+                if (leaderboard && typeof leaderboard.then === 'function') {
+                    const result = await leaderboard;
+                    leaderboardData = result.leaderboard || [];
+                } else if (leaderboard && leaderboard.leaderboard) {
+                    leaderboardData = leaderboard.leaderboard;
+                } else if (Array.isArray(leaderboard)) {
+                    leaderboardData = leaderboard;
+                } else {
+                    debugLogger.warn("Unexpected leaderboard format:", leaderboard);
+                    leaderboardData = [];
+                }
+                
+                if (leaderboardData.length > 0) {
+                    position = leaderboardData.findIndex(entry => entry.score === currentScore) + 1;
+                    if (position <= 0) {
+                        debugLogger.warn("Position not found in leaderboard, defaulting to 1");
+                        position = 1;
+                    }
                 }
             } catch (err) {
-                debugLogger.error("Error finding position in leaderboard:", err);
+                debugLogger.error("Error processing leaderboard data:", err);
             }
             
             const isTop3 = position <= 3;

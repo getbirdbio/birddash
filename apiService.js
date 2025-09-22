@@ -3,7 +3,8 @@ export default class ApiService {
     constructor() {
         // Auto-detect API base URL based on environment
         this.baseUrl = this.detectApiUrl();
-        this.token = localStorage.getItem('birddash_token');
+        // Note: JWT token now stored in HTTP-only cookie for security
+        // No longer accessible via JavaScript (prevents XSS attacks)
         this.currentUser = null;
         
         console.log('🌐 API Service initialized with base URL:', this.baseUrl);
@@ -43,9 +44,10 @@ export default class ApiService {
             },
         };
 
-        if (this.token) {
-            defaultOptions.headers['Authorization'] = `Bearer ${this.token}`;
-        }
+        // JWT token now sent automatically via HTTP-only cookie
+        // No need to manually set Authorization header
+        // Cookies are sent automatically with credentials: 'include'
+        defaultOptions.credentials = 'include';
 
         const finalOptions = {
             ...defaultOptions,
@@ -162,10 +164,10 @@ export default class ApiService {
                 body: JSON.stringify({ username })
             });
 
-            if (response.token) {
-                this.token = response.token;
+            // JWT token now stored in HTTP-only cookie by server
+            // Only store user data in localStorage (no sensitive token)
+            if (response.user) {
                 this.currentUser = response.user;
-                localStorage.setItem('birddash_token', this.token);
                 localStorage.setItem('birddash_user', JSON.stringify(this.currentUser));
             }
 
@@ -191,7 +193,7 @@ export default class ApiService {
     }
 
     async verifyToken() {
-        if (!this.token) return null;
+        // Token verification now handled by HTTP-only cookie
         
         try {
             const response = await this.makeRequest('/auth/verify');
@@ -208,10 +210,15 @@ export default class ApiService {
         return null;
     }
 
-    clearAuth() {
-        this.token = null;
+    async clearAuth() {
+        // Call logout endpoint to clear HTTP-only cookie
+        try {
+            await this.makeRequest('/auth/logout', { method: 'POST' });
+        } catch (error) {
+            console.warn('Logout request failed:', error);
+        }
+        
         this.currentUser = null;
-        localStorage.removeItem('birddash_token');
         localStorage.removeItem('birddash_user');
     }
 
